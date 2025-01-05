@@ -2,7 +2,7 @@
     <application
         android:name=".App"
         android:theme="@style/App.Theme"
-        android:label="@string/app_name">
+        android:label="${appName}_${buildType}_${fversion}">
         <activity android:name=".MainActivity"
             android:screenOrientation="portrait"
             android:exported="true">

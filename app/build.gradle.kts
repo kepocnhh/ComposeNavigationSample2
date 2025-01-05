@@ -20,24 +20,21 @@ plugins {
 }
 
 fun ComponentIdentity.getVersion(): String {
-    val flavors = productFlavors.map { (it, _) -> it }
-    check(flavors.isEmpty()) { "Flavors \"$flavorName\" are not supported!" }
     val versionName = android.defaultConfig.versionName ?: error("No version name!")
     check(versionName.isNotBlank())
     val versionCode = android.defaultConfig.versionCode ?: error("No version code!")
     check(versionCode > 0)
     check(name.isNotBlank())
-    return when (buildType) {
-        "debug" -> kebabCase(
+    return when (name) {
+        "realRelease" -> kebabCase(
+            versionName,
+            versionCode.toString(),
+        )
+        else -> kebabCase(
             versionName,
             name,
             versionCode.toString(),
         )
-        "release" -> kebabCase(
-            versionName,
-            versionCode.toString(),
-        )
-        else -> error("Build type \"${buildType}\" is not supported!")
     }
 }
 
@@ -51,6 +48,7 @@ android {
         targetSdk = Version.Android.targetSdk
         versionCode = 1
         versionName = "0.0.$versionCode"
+        manifestPlaceholders["appName"] = "@string/app_name"
     }
 
     buildTypes {
@@ -69,6 +67,22 @@ android {
     }
 
     composeOptions.kotlinCompilerExtensionVersion = "1.5.15"
+
+    productFlavors {
+        "version".also { dimension ->
+            flavorDimensions += dimension
+            create("real") {
+                this.dimension = dimension
+                manifestPlaceholders["f$dimension"] = name
+            }
+            create("mock") {
+                this.dimension = dimension
+                manifestPlaceholders["f$dimension"] = name
+                applicationIdSuffix = ".$name"
+                versionNameSuffix = "-$name"
+            }
+        }
+    }
 }
 
 androidComponents.onVariants { variant ->

@@ -11,22 +11,21 @@ import sp.kx.logics.LogicsProvider
 import sp.kx.logics.contains
 import sp.kx.logics.get
 import sp.kx.logics.remove
-import test.android.cns2.entity.Band
 import test.android.cns2.module.app.Injection
 import test.android.cns2.provider.Contexts
+import test.android.cns2.provider.FinalLocals
 import test.android.cns2.provider.FinalLoggers
 import test.android.cns2.provider.Locals
+import test.android.cns2.provider.Logger
 
 internal class App : Application() {
-    private object MockLocals : Locals {
-        override var bands: List<Band> = listOf()
-    }
-
     override fun onCreate() {
         super.onCreate()
-        val locals: Locals = MockLocals // todo
+        val loggers: Logger.Factory = FinalLoggers
+        _loggers = loggers
+        val locals: Locals = FinalLocals()
         _injection = Injection(
-            loggers = FinalLoggers,
+            loggers = loggers,
             contexts = Contexts(
                 main = Dispatchers.Main,
                 default = Dispatchers.Default,
@@ -36,6 +35,7 @@ internal class App : Application() {
     }
 
     companion object {
+        private var _loggers: Logger.Factory? = null
         private var _injection: Injection? = null
 
         private val _logicsProvider = LogicsProvider(
@@ -62,6 +62,14 @@ internal class App : Application() {
                 }
             }
             return logics
+        }
+
+        @Composable
+        fun logger(tag: String): Logger {
+            return remember(tag) {
+                val loggers = checkNotNull(_loggers) { "No loggers!" }
+                loggers.create(tag = tag)
+            }
         }
     }
 }
