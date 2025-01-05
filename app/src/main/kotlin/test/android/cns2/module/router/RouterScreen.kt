@@ -1,19 +1,19 @@
 package test.android.cns2.module.router
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.runtime.remember
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.createGraph
+import test.android.cns2.module.bands.BandsScreen
 
 @Composable
-internal fun RouterScreen() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White),
-    ) {
-        // todo
+internal fun RouterScreen(navController: NavHostController) {
+    val graph = remember(navController) {
+        navController.createGraph(startDestination = "bands") {
+            composable("bands") { BandsScreen() }
+        }
     }
+    NavHost(navController = navController, graph = graph)
 }

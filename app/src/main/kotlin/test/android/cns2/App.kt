@@ -11,19 +11,27 @@ import sp.kx.logics.LogicsProvider
 import sp.kx.logics.contains
 import sp.kx.logics.get
 import sp.kx.logics.remove
+import test.android.cns2.entity.Band
 import test.android.cns2.module.app.Injection
 import test.android.cns2.provider.Contexts
 import test.android.cns2.provider.FinalLoggers
+import test.android.cns2.provider.Locals
 
 internal class App : Application() {
+    private object MockLocals : Locals {
+        override var bands: List<Band> = listOf()
+    }
+
     override fun onCreate() {
         super.onCreate()
+        val locals: Locals = MockLocals // todo
         _injection = Injection(
             loggers = FinalLoggers,
             contexts = Contexts(
                 main = Dispatchers.Main,
                 default = Dispatchers.Default,
             ),
+            locals = locals,
         )
     }
 
