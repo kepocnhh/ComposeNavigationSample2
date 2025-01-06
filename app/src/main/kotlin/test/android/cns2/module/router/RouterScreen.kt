@@ -4,41 +4,42 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import androidx.navigation.createGraph
 import test.android.cns2.App
-import test.android.cns2.module.bands.BandsScreen
 import test.android.cns2.module.enter.EnterScreen
+import test.android.cns2.module.main.MainNavHost
 import test.android.cns2.module.splash.SplashScreen
 
 @Composable
-internal fun RouterScreen(navController: NavHostController) {
+internal fun RouterScreen() {
     val logger = App.logger("[Router]")
     val logics = App.logics<RouterLogics>()
     val authorized = logics.authorized.collectAsState().value
-    LaunchedEffect(Unit) {
+    LaunchedEffect(authorized) {
         if (authorized == null) logics.requestUser()
     }
-    val graph = remember(navController) {
-        navController.createGraph(startDestination = "splash") {
+    val nhc = rememberNavController()
+    val ng = remember(nhc) {
+        nhc.createGraph(startDestination = "splash") {
             composable("splash") { SplashScreen() }
             composable("enter") {
                 EnterScreen(
                     onEnter = {
-                        logics.enter()
+                        logics.requestUser()
                     },
                 )
             }
-            composable("bands") { BandsScreen() }
+            composable("main") { MainNavHost() }
         }
     }
-    NavHost(navController = navController, graph = graph)
+    NavHost(navController = nhc, graph = ng)
     logger.debug("authorized: $authorized")
     when (authorized) {
-        true -> navController.navigate("bands")
-        false -> navController.navigate("enter")
+        true -> nhc.navigate("main")
+        false -> nhc.navigate("enter")
         else -> Unit
     }
 }
