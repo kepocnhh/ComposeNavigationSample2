@@ -18,10 +18,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.createGraph
+import androidx.navigation.navArgument
 
 @Composable
 private fun TestScreen(
@@ -57,7 +60,7 @@ internal fun TestScreen() {
     ) {
         composable(
             route = "f1",
-        ) {
+        ) { stackEntry: NavBackStackEntry ->
             TestScreen(
                 color = Color.Red,
                 text = "f1",
@@ -72,25 +75,28 @@ internal fun TestScreen() {
             exitTransition = null,
             popEnterTransition = null,
             popExitTransition = { slideOutHorizontally(targetOffsetX = {it}) },
-        ) {
+        ) { stackEntry: NavBackStackEntry ->
             TestScreen(
                 color = Color.Green,
                 text = "f2",
                 onClick = {
-                    nhc.navigate("f3")
+                    val foo: Long = System.currentTimeMillis()
+                    nhc.navigate("f3/$foo")
                 },
             )
         }
         composable(
-            route = "f3",
+            route = "f3/{foo}",
+            arguments = listOf(navArgument("foo") { type = NavType.LongType }),
             enterTransition = { slideInHorizontally(initialOffsetX = {it}) },
             exitTransition = null,
             popEnterTransition = null,
             popExitTransition = { slideOutHorizontally(targetOffsetX = {it}) },
-        ) {
+        ) { stackEntry: NavBackStackEntry ->
+            val foo = stackEntry.arguments?.getLong("foo")
             TestScreen(
                 color = Color.Blue,
-                text = "f3",
+                text = "f3: $foo",
                 onClick = {
                     nhc.popBackStack(route = "f1", inclusive = false)
                 },
