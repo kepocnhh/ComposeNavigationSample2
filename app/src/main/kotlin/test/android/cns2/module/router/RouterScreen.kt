@@ -1,9 +1,11 @@
 package test.android.cns2.module.router
 
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -35,7 +37,11 @@ internal fun RouterScreen() {
             composable("main") { MainNavHost() }
         }
     }
-    NavHost(navController = nhc, graph = ng)
+    NavHost(
+        modifier = Modifier.fillMaxWidth(),
+        navController = nhc,
+        graph = ng,
+    )
     logger.debug("authorized: $authorized")
     when (authorized) {
         true -> nhc.navigate("main")
