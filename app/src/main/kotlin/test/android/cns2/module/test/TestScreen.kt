@@ -1,5 +1,7 @@
 package test.android.cns2.module.test
 
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -22,11 +24,15 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.createGraph
 
 @Composable
-private fun TestScreen(text: String, onClick: () -> Unit) {
+private fun TestScreen(
+    color: Color,
+    text: String,
+    onClick: () -> Unit,
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White),
+            .background(color),
     ) {
         BasicText(
             modifier = Modifier
@@ -44,39 +50,51 @@ private fun TestScreen(text: String, onClick: () -> Unit) {
 @Composable
 internal fun TestScreen() {
     val nhc = rememberNavController()
-    val ng = remember(nhc) {
-        nhc.createGraph(startDestination = "f1") {
-            composable("f1") {
-                TestScreen(
-                    text = "f1",
-                    onClick = {
-                        nhc.navigate("f2")
-                    },
-                )
-            }
-            composable("f2") {
-                TestScreen(
-                    text = "f2",
-                    onClick = {
-                        nhc.navigate("f3")
-                    },
-                )
-            }
-            composable("f3") {
-                TestScreen(
-                    text = "f3",
-                    onClick = {
-                        nhc.navigate("f1") {
-                            popUpTo(nhc.graph.id)
-                        }
-                    },
-                )
-            }
-        }
-    }
     NavHost(
         modifier = Modifier.fillMaxWidth(),
         navController = nhc,
-        graph = ng,
-    )
+        startDestination = "f1",
+    ) {
+        composable(
+            route = "f1",
+        ) {
+            TestScreen(
+                color = Color.Red,
+                text = "f1",
+                onClick = {
+                    nhc.navigate("f2")
+                },
+            )
+        }
+        composable(
+            route = "f2",
+            enterTransition = { slideInHorizontally(initialOffsetX = {it}) },
+            exitTransition = null,
+            popEnterTransition = null,
+            popExitTransition = { slideOutHorizontally(targetOffsetX = {it}) },
+        ) {
+            TestScreen(
+                color = Color.Green,
+                text = "f2",
+                onClick = {
+                    nhc.navigate("f3")
+                },
+            )
+        }
+        composable(
+            route = "f3",
+            enterTransition = { slideInHorizontally(initialOffsetX = {it}) },
+            exitTransition = null,
+            popEnterTransition = null,
+            popExitTransition = { slideOutHorizontally(targetOffsetX = {it}) },
+        ) {
+            TestScreen(
+                color = Color.Blue,
+                text = "f3",
+                onClick = {
+                    nhc.popBackStack(route = "f1", inclusive = false)
+                },
+            )
+        }
+    }
 }
