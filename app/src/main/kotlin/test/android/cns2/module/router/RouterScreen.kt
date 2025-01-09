@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -46,8 +47,111 @@ internal object RouterScreen {
     )
 }
 
+private data class Route(
+    val visible: Boolean,
+    val arguments: Map<String, String>,
+) {
+    companion object {
+        val Empty = Route(visible = false, arguments = emptyMap())
+    }
+}
+
+private class RouterBuilder {
+    private val routes = mutableMapOf<String, Pair<MutableState<Route>, @Composable (Map<String, String>) -> Unit>>()
+
+    @Composable
+    fun Route(
+        tag: String,
+        content: @Composable (Map<String, String>) -> Unit,
+    ) {
+        val state = remember { mutableStateOf<Route>(Route.Empty) }
+        routes[tag] = state to content
+    }
+
+    fun show(tag: String, arguments: Map<String, String> = emptyMap()) {
+        routes[tag]!!.first.value = Route(
+            visible = true,
+            arguments = arguments,
+        )
+    }
+
+    fun hide(tag: String) {
+        routes[tag]!!.first.value = Route.Empty
+    }
+
+    @Composable
+    fun Build() {
+        routes.forEach { (tag, pair) ->
+            val (state, content) = pair
+            val route = state.value
+            AnimatedVisibility(
+                visible = route.visible,
+            ) {
+                BackHandler {
+                    println("[$tag] back...")
+                    state.value = Route.Empty
+                }
+                DisposableEffect(Unit) {
+                    onDispose {
+                        println("[$tag] on dispose...")
+                    }
+                }
+                val arguments = remember { route.arguments }
+                content(arguments)
+            }
+        }
+    }
+}
+
+@Composable
+private fun Router(
+    builder: @Composable RouterBuilder.() -> Unit,
+) {
+    val b = RouterBuilder()
+    b.builder()
+    b.Build()
+}
+
 @Composable
 internal fun RouterScreen() {
+    val logger = App.logger("[Router]")
+    Router {
+        Route("main") {
+            MainScreen(
+                onClick = { route ->
+                    when (route) {
+                        MainScreen.Route.Foo -> {
+                            show("foos")
+                        }
+                    }
+                }
+            )
+        }
+        Route("foos") {
+            FoosScreen(
+                onClick = { id ->
+                    logger.debug("to foo: $id")
+                    show("foo", arguments = mapOf("id" to id.toString()))
+                }
+            )
+        }
+        Route("foo") { arguments ->
+            val id = arguments["id"]!!.let(UUID::fromString)
+            FooScreen(
+                id = id,
+                onBack = {
+                    hide("foos")
+                },
+            )
+        }
+        LaunchedEffect(Unit) {
+            show("main")
+        }
+    }
+}
+
+@Composable
+internal fun RouterScreen3() {
     val logger = App.logger("[Router]")
     val routesState = remember {
         mutableStateOf<RouterScreen.Routes<RouterScreen.Route>>(
