@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
@@ -32,6 +33,11 @@ internal fun FoosScreen(
 ) {
     val insets = WindowInsets.systemBars.asPaddingValues()
     val logger = App.logger("[Foos]")
+    DisposableEffect(Unit) {
+        onDispose {
+            logger.debug("on dispose...")
+        }
+    }
     val viewModel = App.viewModel<FoosViewModel>()
     val foos = viewModel.foos.collectAsState().value
     LaunchedEffect(foos) {

@@ -15,10 +15,12 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import test.android.cns2.App
 
 internal object MainScreen {
     enum class Route {
@@ -31,6 +33,12 @@ internal fun MainScreen(
     onClick: (MainScreen.Route) -> Unit,
 ) {
     val insets = WindowInsets.systemBars.asPaddingValues()
+    val logger = App.logger("[Main]")
+    DisposableEffect(Unit) {
+        onDispose {
+            logger.debug("on dispose...")
+        }
+    }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -49,6 +57,7 @@ internal fun MainScreen(
                             .fillMaxWidth()
                             .height(64.dp)
                             .clickable {
+                                logger.debug("main -> $route")
                                 onClick(route)
                             }
                             .padding(start = 8.dp)
