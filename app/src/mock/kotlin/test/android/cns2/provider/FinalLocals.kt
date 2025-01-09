@@ -1,23 +1,14 @@
 package test.android.cns2.provider
 
 import test.android.cns2.MockEnvironment
-import test.android.cns2.entity.Band
-import test.android.cns2.entity.User
+import test.android.cns2.entity.Foo
 
 internal class FinalLocals : Locals {
-    override var user: User?
+    override var foos: List<Foo>
         get() {
-            return MockEnvironment.user
+            return MockEnvironment.foos
         }
         set(value) {
-            MockEnvironment.user = value
-        }
-
-    override var bands: List<Band>
-        get() {
-            return MockEnvironment.bands
-        }
-        set(value) {
-            MockEnvironment.bands = value
+            MockEnvironment.foos = value
         }
 }

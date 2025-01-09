@@ -69,75 +69,6 @@ private fun TestScreen(
 }
 
 @Composable
-private fun FooScreen(
-    foo: Long?,
-    onClick: () -> Unit,
-    onBack: () -> Unit,
-) {
-    val context = LocalContext.current
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Blue),
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize(),
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(64.dp),
-            ) {
-                val interactionSource = remember { MutableInteractionSource() }
-                BasicText(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .indication(
-                            interactionSource = interactionSource,
-                            indication = LocalIndication.current,
-                        )
-                        .pointerInput(Unit) {
-                            detectTapGestures(
-                                onPress = { offset ->
-                                    val press = PressInteraction.Press(offset)
-                                    interactionSource.emit(press)
-                                    tryAwaitRelease()
-                                    interactionSource.emit(PressInteraction.Release(press))
-//                                    context.showToast("on press")
-                                },
-                                onDoubleTap = {
-                                    context.showToast("on double tap")
-                                },
-                                onLongPress = {
-                                    context.showToast("on long press")
-                                },
-                                onTap = {
-                                    context.showToast("on tap")
-                                },
-                            )
-                        }
-                        .padding(horizontal = 8.dp)
-                        .wrapContentSize(),
-                    text = "back",
-                    style = TextStyle(textAlign = TextAlign.Center),
-                )
-            }
-            Spacer(modifier = Modifier.weight(1f))
-            BasicText(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(64.dp)
-                    .clickable(onClick = onClick)
-                    .wrapContentSize(),
-                text = "foo: $foo",
-                style = TextStyle(textAlign = TextAlign.Center),
-            )
-        }
-    }
-}
-
-@Composable
 internal fun TestScreen(
     modifier: Modifier,
     nhc: NavHostController,
@@ -183,15 +114,7 @@ internal fun TestScreen(
             popExitTransition = { slideOutHorizontally(targetOffsetX = {it}) },
         ) { stackEntry: NavBackStackEntry ->
             val foo = stackEntry.arguments?.getLong("foo")
-            FooScreen(
-                foo = foo,
-                onClick = {
-                    nhc.popBackStack(route = "f1", inclusive = false)
-                },
-                onBack = {
-                    nhc.popBackStack()
-                },
-            )
+            // todo
         }
     }
 }

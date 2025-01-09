@@ -1,51 +1,54 @@
 package test.android.cns2.module.router
 
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.createGraph
 import test.android.cns2.App
-import test.android.cns2.module.enter.EnterScreen
-import test.android.cns2.module.main.MainNavHost
-import test.android.cns2.module.splash.SplashScreen
+import test.android.cns2.module.foo.FooScreen
+import test.android.cns2.module.foo.FoosScreen
+import java.util.UUID
 
 @Composable
 internal fun RouterScreen() {
     val logger = App.logger("[Router]")
-    val viewModel = TODO()
-//    val authorized = viewModel.authorized.collectAsState().value
-//    LaunchedEffect(authorized) {
-//        if (authorized == null) viewModel.requestUser()
-//    }
     val nhc = rememberNavController()
-    val ng = remember(nhc) {
-        nhc.createGraph(startDestination = "splash") {
-            composable("splash") { SplashScreen() }
-            composable("enter") {
-                EnterScreen(
-                    onEnter = {
-//                        viewModel.requestUser()
-                    },
-                )
+    NavHost(
+        modifier = Modifier.fillMaxSize(),
+        navController = nhc,
+        startDestination = "foos",
+    ) {
+        composable(
+            route = "foos",
+        ) {
+            DisposableEffect(Unit) {
+                onDispose {
+                    logger.debug("foos: on dispose...")
+                }
             }
-            composable("main") { MainNavHost() }
+            FoosScreen(
+                onClick = { id ->
+                    logger.debug("to foo: $id")
+                    nhc.navigate("foo/$id")
+                }
+            )
+        }
+        composable("foo/{id}") {
+            val id = it.arguments?.getString("id")!!.let(UUID::fromString)
+            DisposableEffect(Unit) {
+                onDispose {
+                    logger.debug("foo($id): on dispose...")
+                }
+            }
+            FooScreen(
+                id = id,
+                onBack = {
+                    nhc.popBackStack()
+                },
+            )
         }
     }
-    NavHost(
-        modifier = Modifier.fillMaxWidth(),
-        navController = nhc,
-        graph = ng,
-    )
-//    logger.debug("authorized: $authorized")
-//    when (authorized) {
-//        true -> nhc.navigate("main")
-//        false -> nhc.navigate("enter")
-//        else -> Unit
-//    }
 }
