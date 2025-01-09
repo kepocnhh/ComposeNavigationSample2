@@ -18,11 +18,11 @@ import test.android.cns2.module.splash.SplashScreen
 @Composable
 internal fun RouterScreen() {
     val logger = App.logger("[Router]")
-    val logics = App.logics<RouterLogics>()
-    val authorized = logics.authorized.collectAsState().value
-    LaunchedEffect(authorized) {
-        if (authorized == null) logics.requestUser()
-    }
+    val viewModel = TODO()
+//    val authorized = viewModel.authorized.collectAsState().value
+//    LaunchedEffect(authorized) {
+//        if (authorized == null) viewModel.requestUser()
+//    }
     val nhc = rememberNavController()
     val ng = remember(nhc) {
         nhc.createGraph(startDestination = "splash") {
@@ -30,7 +30,7 @@ internal fun RouterScreen() {
             composable("enter") {
                 EnterScreen(
                     onEnter = {
-                        logics.requestUser()
+//                        viewModel.requestUser()
                     },
                 )
             }
@@ -42,10 +42,10 @@ internal fun RouterScreen() {
         navController = nhc,
         graph = ng,
     )
-    logger.debug("authorized: $authorized")
-    when (authorized) {
-        true -> nhc.navigate("main")
-        false -> nhc.navigate("enter")
-        else -> Unit
-    }
+//    logger.debug("authorized: $authorized")
+//    when (authorized) {
+//        true -> nhc.navigate("main")
+//        false -> nhc.navigate("enter")
+//        else -> Unit
+//    }
 }

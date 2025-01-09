@@ -129,5 +129,5 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("androidx.navigation:navigation-compose:2.8.5")
     implementation(compose.foundation)
-    implementation("com.github.kepocnhh:Logics:0.1.3-SNAPSHOT")
+//    implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
 }

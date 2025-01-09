@@ -22,10 +22,10 @@ internal fun BandsScreen() {
             .fillMaxSize()
             .background(Color.White),
     ) {
-        val logics = App.logics<BandsLogics>()
-        val bands = logics.bands.collectAsState().value
+        val viewModel = App.viewModel<BandsViewModel>()
+        val bands = viewModel.bands.collectAsState().value
         LaunchedEffect(Unit) {
-            if (bands == null) logics.requestBands()
+            if (bands == null) viewModel.requestBands()
         }
         if (bands == null) {
             BasicText(

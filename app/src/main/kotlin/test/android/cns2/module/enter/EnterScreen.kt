@@ -81,15 +81,15 @@ internal fun EnterScreen(
 ) {
     val nhc = rememberNavController()
     val logger = App.logger("[Enter]")
-    val logics = App.logics<EnterLogics>()
-    LaunchedEffect(Unit) {
-        logics.events.collect { event ->
-            logger.debug("event: $event")
-            when (event) {
-                EnterLogics.Event.OnEnter -> onEnter()
-            }
-        }
-    }
+    val viewModel = TODO()
+//    LaunchedEffect(Unit) {
+//        viewModel.events.collect { event ->
+//            logger.debug("event: $event")
+//            when (event) {
+//                EnterViewModel.Event.OnEnter -> onEnter()
+//            }
+//        }
+//    }
     val loginState = remember { mutableStateOf<String?>(null) }
     LaunchedEffect(loginState.value) {
         val login = loginState.value
@@ -104,10 +104,10 @@ internal fun EnterScreen(
         val password = passwordState.value
         if (login != null && password != null) {
             logger.debug("enter...")
-            logics.enter(
-                login = login,
-                password = password,
-            )
+//            viewModel.enter(
+//                login = login,
+//                password = password,
+//            )
         }
     }
     val ng = remember(nhc) {
