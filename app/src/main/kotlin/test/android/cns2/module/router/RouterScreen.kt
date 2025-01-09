@@ -3,11 +3,16 @@ package test.android.cns2.module.router
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.core.SeekableTransitionState
+import androidx.compose.animation.core.rememberTransition
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -25,6 +30,14 @@ internal object RouterScreen {
         data object Main : Route
         data object Foos : Route
         data class Foo(val id: UUID) : Route
+
+        companion object {
+            val order: Set<Class<out Route>> = setOf(
+                Route.Main::class.java,
+                Route.Foos::class.java,
+                Route.Foo::class.java,
+            )
+        }
     }
 
     data class Routes<T: Route>(
@@ -35,6 +48,97 @@ internal object RouterScreen {
 
 @Composable
 internal fun RouterScreen() {
+    val logger = App.logger("[Router]")
+    val routesState = remember {
+        mutableStateOf<RouterScreen.Routes<RouterScreen.Route>>(
+            RouterScreen.Routes(from = null, to = RouterScreen.Route.Main),
+        )
+    }
+    val transitionState = remember {
+        SeekableTransitionState(routesState.value)
+    }
+    val transition = rememberTransition(transitionState, label = "entry")
+    LaunchedEffect(routesState.value) {
+        if (transitionState.currentState != routesState.value) {
+            transitionState.animateTo(routesState.value)
+        }
+    }
+    transition.AnimatedContent(
+        transitionSpec = {
+            ContentTransform(
+                targetContentEnter = slideInHorizontally(
+                    initialOffsetX = { fullWidth: Int ->
+                        val fi = RouterScreen.Route.order.indexOf(routesState.value.from)
+                        val ti = RouterScreen.Route.order.indexOf(routesState.value.to::class.java)
+                        if (fi > ti) - fullWidth else fullWidth
+                    },
+                ),
+                initialContentExit = slideOutHorizontally(
+                    targetOffsetX = { fullWidth: Int ->
+                        val fi = RouterScreen.Route.order.indexOf(routesState.value.from)
+                        val ti = RouterScreen.Route.order.indexOf(routesState.value.to::class.java)
+                        if (fi < ti) - fullWidth else fullWidth
+                    },
+                ),
+                sizeTransform = null,
+            )
+        },
+//        contentKey = {it::to::class.java},
+    ) { routes ->
+        when (val route = routes.to) {
+            is RouterScreen.Route.Foo -> {
+                BackHandler {
+                    routesState.value = RouterScreen.Routes(
+                        from = RouterScreen.Route.Foo::class.java,
+                        to = RouterScreen.Route.Foos,
+                    )
+                }
+                FooScreen(
+                    id = route.id,
+                    onBack = {
+                        routesState.value = RouterScreen.Routes(
+                            from = RouterScreen.Route.Foo::class.java,
+                            to = RouterScreen.Route.Foos,
+                        )
+                    },
+                )
+            }
+            RouterScreen.Route.Foos -> {
+                BackHandler {
+                    routesState.value = RouterScreen.Routes(
+                        from = RouterScreen.Route.Foos::class.java,
+                        to = RouterScreen.Route.Main,
+                    )
+                }
+                FoosScreen(
+                    onClick = { id ->
+                        routesState.value = RouterScreen.Routes(
+                            from = RouterScreen.Route.Foos::class.java,
+                            to = RouterScreen.Route.Foo(id = id),
+                        )
+                    }
+                )
+            }
+            RouterScreen.Route.Main -> {
+                MainScreen(
+                    onClick = { route ->
+                        when (route) {
+                            MainScreen.Route.Foo -> {
+                                routesState.value = RouterScreen.Routes(
+                                    from = RouterScreen.Route.Main::class.java,
+                                    to = RouterScreen.Route.Foos,
+                                )
+                            }
+                        }
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+internal fun RouterScreen2() {
     val logger = App.logger("[Router]")
     val routesState = remember {
         mutableStateOf<RouterScreen.Routes<RouterScreen.Route>>(

@@ -64,6 +64,7 @@ internal fun FoosScreen(
                             .fillMaxWidth()
                             .height(64.dp)
                             .clickable {
+                                logger.debug("to foo:id: ${foo.id}")
                                 onClick(foo.id)
                             }
                             .padding(start = 8.dp)
