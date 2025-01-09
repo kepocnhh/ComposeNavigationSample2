@@ -10,6 +10,7 @@ import androidx.navigation.compose.rememberNavController
 import test.android.cns2.App
 import test.android.cns2.module.foo.FooScreen
 import test.android.cns2.module.foo.FoosScreen
+import test.android.cns2.module.main.MainScreen
 import java.util.UUID
 
 @Composable
@@ -19,8 +20,27 @@ internal fun RouterScreen() {
     NavHost(
         modifier = Modifier.fillMaxSize(),
         navController = nhc,
-        startDestination = "foos",
+        startDestination = "main",
     ) {
+        composable(
+            route = "main",
+        ) {
+            DisposableEffect(Unit) {
+                onDispose {
+                    logger.debug("main: on dispose...")
+                }
+            }
+            MainScreen(
+                onClick = { route ->
+                    logger.debug("main -> $route")
+                    when (route) {
+                        MainScreen.Route.Foo -> {
+                            nhc.navigate("foos")
+                        }
+                    }
+                }
+            )
+        }
         composable(
             route = "foos",
         ) {

@@ -5,11 +5,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
@@ -30,6 +33,7 @@ internal fun FooScreen(
     id: UUID,
     onBack: () -> Unit,
 ) {
+    val insets = WindowInsets.systemBars.asPaddingValues()
     val logger = App.logger("[Foo]")
     val viewModel = App.viewModel<FooViewModel>()
     val foo = viewModel.foo.collectAsState().value
@@ -43,7 +47,8 @@ internal fun FooScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Blue),
+            .background(Color.Blue)
+            .padding(insets),
     ) {
         Column(
             modifier = Modifier
