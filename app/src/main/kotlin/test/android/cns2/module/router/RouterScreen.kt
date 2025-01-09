@@ -1,5 +1,7 @@
 package test.android.cns2.module.router
 
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -43,6 +45,10 @@ internal fun RouterScreen() {
         }
         composable(
             route = "foos",
+            enterTransition = { slideInHorizontally(initialOffsetX = {it}) },
+            exitTransition = { slideOutHorizontally(targetOffsetX = {-it}) },
+            popEnterTransition = { slideInHorizontally(initialOffsetX = {-it}) },
+            popExitTransition = { slideOutHorizontally(targetOffsetX = {it}) },
         ) {
             DisposableEffect(Unit) {
                 onDispose {
@@ -56,7 +62,13 @@ internal fun RouterScreen() {
                 }
             )
         }
-        composable("foo/{id}") {
+        composable(
+            route = "foo/{id}",
+            enterTransition = { slideInHorizontally(initialOffsetX = {it}) },
+            exitTransition = { slideOutHorizontally(targetOffsetX = {-it}) },
+            popEnterTransition = { slideInHorizontally(initialOffsetX = {-it}) },
+            popExitTransition = { slideOutHorizontally(targetOffsetX = {it}) },
+        ) {
             val id = it.arguments?.getString("id")!!.let(UUID::fromString)
             DisposableEffect(Unit) {
                 onDispose {

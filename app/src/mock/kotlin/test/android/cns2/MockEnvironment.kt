@@ -7,7 +7,7 @@ internal object MockEnvironment {
     var foos: List<Foo> = initFoos()
 
     private fun initFoos(): List<Foo> {
-        return (1..10).map { number ->
+        return (1..24).map { number ->
             Foo(id = UUID(number.toLong(), 0))
         }
     }
